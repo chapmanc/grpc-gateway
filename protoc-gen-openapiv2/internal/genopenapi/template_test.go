@@ -3748,13 +3748,13 @@ func TestApplyTemplateWithRequestAndBodyParameters(t *testing.T) {
 	if want, is, name := 4, len(result.Paths[0].PathItemObject.Post.Parameters), "len(result.Paths[0].PathItemObject.Post.Parameters)"; !reflect.DeepEqual(is, want) {
 		t.Errorf("%s = %d want to be %d", name, want, is)
 	}
-	if want, is, name := `#/definitions/ascii.+.ö.ö.ö\.book.CreateBookRequest`, result.Paths[0].PathItemObject.Post.Parameters[1].Schema.schemaCore.Ref, "result.Paths[0].PathItemObject.Post.Parameters[1].Schema.schemaCore.Ref"; !reflect.DeepEqual(is, want) {
+	if want, is, name := `#/definitions/ascii.+.ö.ö.ö\.CreateBookRequest`, result.Paths[0].PathItemObject.Post.Parameters[1].Schema.schemaCore.Ref, "result.Paths[0].PathItemObject.Post.Parameters[1].Schema.schemaCore.Ref"; !reflect.DeepEqual(is, want) {
 		t.Errorf("%s = %s want to be %s", name, want, is)
 	}
 
-	_, found := result.Definitions[`ascii.+.ö.ö.ö\.book.CreateBookRequest`]
+	_, found := result.Definitions[`ascii.+.ö.ö.ö\.CreateBookRequest`]
 	if !found {
-		t.Error(`expecting definition to contain ascii_+_ö_ö_ö\_book_CreateBookRequest`)
+		t.Error(`expecting definition to contain ascii.+.ö.ö.ö\.CreateBookRequest`)
 	}
 
 	// If there was a failure, print out the input and the json result for debugging.

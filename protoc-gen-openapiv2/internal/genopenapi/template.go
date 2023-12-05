@@ -1288,7 +1288,7 @@ func renderServices(services []*descriptor.Service, paths *openapiPathsObject, r
 								if messageSchema.Properties != nil && len(*messageSchema.Properties) != 0 {
 									// Combine the proto filepath and the method name for the definition's name
 									protoFilePath := lastFile.GetName()
-									protoFilePath = strings.TrimSuffix(protoFilePath, filepath.Ext(protoFilePath))
+									protoFilePath = filepath.Dir(protoFilePath)
 									protoFilePath = nonAlphanumeric.ReplaceAllString(protoFilePath, ".")
 
 									defName := fmt.Sprintf("%s.%s", protoFilePath, *meth.RequestType.Name)
