@@ -40,7 +40,7 @@ const pathParamUniqueSuffixDeliminator = "_"
 
 const paragraphDeliminator = "\n\n"
 
-var nonAlphanumeric = regexp.MustCompile("[^a-zA-Z0-9 ]+")
+var nonAlphanumeric = regexp.MustCompile(`[\/\s\p{Zs}]+`)
 
 // wktSchemas are the schemas of well-known-types.
 // The schemas must match with the behavior of the JSON unmarshaler in
@@ -1121,6 +1121,7 @@ func renderServices(services []*descriptor.Service, paths *openapiPathsObject, r
 	// Correctness of svcIdx and methIdx depends on 'services' containing the services in the same order as the 'file.Service' array.
 	svcBaseIdx := 0
 	var lastFile *descriptor.File = nil
+	mDefName := map[string]int{}
 	for svcIdx, svc := range services {
 		if svc.File != lastFile {
 			lastFile = svc.File
@@ -1258,10 +1259,9 @@ func renderServices(services []*descriptor.Service, paths *openapiPathsObject, r
 				if b.Body != nil {
 					// Recursively render fields as definitions as long as they contain path parameters.
 					// Special case for top level body if we don't have a body field.
-					var schema *openapiSchemaObject
 					desc := ""
 					var bodyFieldName string
-					schema = &openapiSchemaObject{
+					schema := &openapiSchemaObject{
 						schemaCore: schemaCore{},
 					}
 					if len(b.Body.FieldPath) == 0 {
@@ -1279,7 +1279,6 @@ func renderServices(services []*descriptor.Service, paths *openapiPathsObject, r
 							if err != nil {
 								return err
 							}
-
 							if len(b.PathParams) == 0 {
 								if err := schema.setRefFromFQN(meth.RequestType.FQMN(), reg); err != nil {
 									return err
@@ -1292,7 +1291,13 @@ func renderServices(services []*descriptor.Service, paths *openapiPathsObject, r
 									protoFilePath = strings.TrimSuffix(protoFilePath, filepath.Ext(protoFilePath))
 									protoFilePath = nonAlphanumeric.ReplaceAllString(protoFilePath, "_")
 
-									defName := fmt.Sprintf("%s_%sBody", protoFilePath, meth.GetName())
+									defName := fmt.Sprintf("%s_%s", protoFilePath, *meth.RequestType.Name)
+									if val, ok := mDefName[defName]; !ok {
+										mDefName[defName] = 1
+									} else {
+										mDefName[defName] += 1
+										defName = fmt.Sprintf("%s_%v", defName, val)
+									}
 
 									schema.Ref = fmt.Sprintf("#/definitions/%s", defName)
 									defs[defName] = messageSchema

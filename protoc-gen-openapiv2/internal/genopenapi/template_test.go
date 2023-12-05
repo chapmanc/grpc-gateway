@@ -3660,7 +3660,7 @@ func TestApplyTemplateWithRequestAndBodyParameters(t *testing.T) {
 	file := descriptor.File{
 		FileDescriptorProto: &descriptorpb.FileDescriptorProto{
 			SourceCodeInfo: &descriptorpb.SourceCodeInfo{},
-			Name:           proto.String("book.proto"),
+			Name:           proto.String(`ascii/+ ö ö ö\/book.proto`),
 			MessageType:    []*descriptorpb.DescriptorProto{bookDesc, createDesc},
 			Service:        []*descriptorpb.ServiceDescriptorProto{svc},
 			Options: &descriptorpb.FileOptions{
@@ -3748,13 +3748,13 @@ func TestApplyTemplateWithRequestAndBodyParameters(t *testing.T) {
 	if want, is, name := 4, len(result.Paths[0].PathItemObject.Post.Parameters), "len(result.Paths[0].PathItemObject.Post.Parameters)"; !reflect.DeepEqual(is, want) {
 		t.Errorf("%s = %d want to be %d", name, want, is)
 	}
-	if want, is, name := "#/definitions/book_CreateBookBody", result.Paths[0].PathItemObject.Post.Parameters[1].Schema.schemaCore.Ref, "result.Paths[0].PathItemObject.Post.Parameters[1].Schema.schemaCore.Ref"; !reflect.DeepEqual(is, want) {
+	if want, is, name := `#/definitions/ascii_+_ö_ö_ö\_book_CreateBookRequest`, result.Paths[0].PathItemObject.Post.Parameters[1].Schema.schemaCore.Ref, "result.Paths[0].PathItemObject.Post.Parameters[1].Schema.schemaCore.Ref"; !reflect.DeepEqual(is, want) {
 		t.Errorf("%s = %s want to be %s", name, want, is)
 	}
 
-	_, found := result.Definitions["book_CreateBookBody"]
+	_, found := result.Definitions[`ascii_+_ö_ö_ö\_book_CreateBookRequest`]
 	if !found {
-		t.Error("expecting definition to contain book_CreateBookBody")
+		t.Error(`expecting definition to contain ascii_+_ö_ö_ö\_book_CreateBookRequest`)
 	}
 
 	// If there was a failure, print out the input and the json result for debugging.
